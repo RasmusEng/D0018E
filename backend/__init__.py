@@ -1,5 +1,6 @@
 import os
 from . import db
+from . import products
 from flask import Flask
 
 # Might need to change here for pool
@@ -16,5 +17,6 @@ def create_app(test_config=None):
         app.config.from_mapping(test_config)
 
     db.init_app(app)
+    app.register_blueprint(products.products_bp)
 
     return app

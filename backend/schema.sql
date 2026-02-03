@@ -1,4 +1,3 @@
-
 DO $$ BEGIN
     CREATE TYPE diet_type AS ENUM ('carnivore', 'omnivore', 'herbivore');
 EXCEPTION 
@@ -18,14 +17,14 @@ EXCEPTION
 END $$;
     
 CREATE TABLE IF NOT EXISTS users (
-    user_id INTEGER PRIMARY KEY,
+    user_id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     email VARCHAR(50) UNIQUE,
     password VARCHAR(50),
     admin BOOLEAN
 );
 
 CREATE TABLE IF NOT EXISTS products (
-    product_id INTEGER PRIMARY KEY,
+    product_id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     product_name VARCHAR(50),
     weight INTEGER,
     height INTEGER,
@@ -41,7 +40,7 @@ CREATE TABLE IF NOT EXISTS products (
 );
 
 CREATE TABLE IF NOT EXISTS orders (
-    order_id INTEGER PRIMARY KEY,
+    order_id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     user_id INTEGER UNIQUE,
     order_status SMALLINT,
     order_date DATE,

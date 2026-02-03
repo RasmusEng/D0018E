@@ -1,5 +1,5 @@
 import click
-import psycopg 
+import psycopg
 import os
 from dotenv import load_dotenv
 from psycopg.rows import dict_row
@@ -10,7 +10,7 @@ from flask import current_app, g
 load_dotenv()
 
 # Create connection pool
-pool = ConnectionPool(conninfo=os.environ.get("DB_URL"), kwargs={"row_factory":dict_row}, open=True, min_size=1, max_size=10)
+# pool = ConnectionPool(conninfo=os.environ.get("DB_URL"), kwargs={"row_factory":dict_row}, open=True, min_size=1, max_size=10)
 
 # Change this to a pool
 def get_db():
@@ -27,7 +27,8 @@ def close_db(e=None):
 
     if db is not None:
         db.close()
-        
+
+
 def init_db():
     db = get_db()
     cur = db.cursor()
@@ -36,6 +37,7 @@ def init_db():
         cur.execute(f.read().decode('utf8'))
 
     db.commit()
+
 
 def load_dummy_data():
     print(232)
@@ -51,10 +53,8 @@ def init_db_command():
 def load_dummy_data_command():
     load_dummy_data()
 
+
 def init_app(app):
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
     app.cli.add_command(load_dummy_data_command)
-    
-
-    
