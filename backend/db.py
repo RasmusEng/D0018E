@@ -40,7 +40,13 @@ def init_db():
 
 
 def load_dummy_data():
-    print(232)
+    db = get_db()
+    cur = db.cursor()
+
+    with current_app.open_resource('dummyData.sql') as f:
+        cur.execute(f.read().decode('utf8'))
+
+    db.commit()
 
 # Make something so we dont nuke our database
 @click.command('init-db')
@@ -52,6 +58,7 @@ def init_db_command():
 @click.command('load-dummy-data')
 def load_dummy_data_command():
     load_dummy_data()
+    click.echo('Loading dummy data')
 
 
 def init_app(app):

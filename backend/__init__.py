@@ -1,13 +1,19 @@
 import os
 from . import db
 from . import products
+from . import review
+from . import orders
+from . import order_items
+from . import users
 from flask import Flask
 
 # Might need to change here for pool
+
+
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
-        SECRET_KEY='dev', #Key should be something random for deployment
+        SECRET_KEY='dev',  # Key should be something random for deployment
         DATABASE=os.environ.get("DATABASE_URL")
     )
 
@@ -18,5 +24,10 @@ def create_app(test_config=None):
 
     db.init_app(app)
     app.register_blueprint(products.products_bp)
+    app.register_blueprint(review.review_bp)
+    app.register_blueprint(orders.orders_bp)
+    app.register_blueprint(order_items.order_items_bp)
+    app.register_blueprint(users.users_bp)
+    
 
     return app
