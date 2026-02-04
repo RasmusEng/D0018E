@@ -1,3 +1,9 @@
+--TODO 
+-- Fix all varchars 
+-- Fix email type (should probably be some good way to do this)
+-- Fix what can be NULL
+-- Storing password for user 
+
 DO $$ BEGIN
     CREATE TYPE diet_type AS ENUM ('carnivore', 'omnivore', 'herbivore');
 EXCEPTION 
@@ -18,8 +24,8 @@ END $$;
     
 CREATE TABLE IF NOT EXISTS users (
     user_id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    email VARCHAR(50) UNIQUE,
-    password VARCHAR(50),
+    email VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(50) NOT NULL,
     admin BOOLEAN
 );
 
@@ -27,8 +33,8 @@ CREATE TABLE IF NOT EXISTS products (
     product_id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     product_name VARCHAR(50),
     weight INTEGER,
-    height INTEGER,
-    length INTEGER,
+    height DECIMAL(10, 2),
+    length DECIMAL(10, 2),
     diet diet_type,
     region region_type,
     dino_type dino_type_type,
@@ -36,7 +42,8 @@ CREATE TABLE IF NOT EXISTS products (
     image TEXT,
     stock INTEGER,
     amount_sold INTEGER,
-    price INTEGER
+    price INTEGER,
+    published BOOLEAN
 );
 
 CREATE TABLE IF NOT EXISTS orders (
@@ -67,7 +74,7 @@ CREATE TABLE IF NOT EXISTS review (
     review TEXT,
     grade INTERVAL,
     user_id INTEGER,
-    verified_customer boolean,
+    verified_customer BOOLEAN,
 
     PRIMARY KEY (product_id, user_id),
 
