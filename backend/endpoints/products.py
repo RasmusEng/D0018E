@@ -1,19 +1,19 @@
 from flask import Blueprint, abort, jsonify
 import psycopg
-from .db import *
+from ..db import *
 products_bp = Blueprint('products', __name__)
 
 
 @products_bp.route('/products', methods=['GET'])
 def get_all_products():
     db = get_db()
-    cur = db.cursor()
+    with db.cursosr as cur:
 
-    cur.execute(
-        "SELECT * FROM products;"
-    )
+        cur.execute(
+            "SELECT * FROM products;"
+        )
 
-    products = cur.fetchall();
+        products = cur.fetchall()
 
     if products is None:
         abort(404)
@@ -24,18 +24,15 @@ def get_all_products():
 @products_bp.route('/products/<int:productID>', methods=['GET'])
 def get_product_by_id(productID):
     db = get_db()
-    cur = db.cursor()
+    with db.cursosr as cur:
 
-    cur.execute(
-        "SELECT * FROM products WHERE product_id = %(id)s;" , {'id':productID}
-    )
-    product = cur.fetchone();
+        cur.execute(
+            "SELECT * FROM products WHERE product_id = %(id)s;", {
+                'id': productID}
+        )
+        product = cur.fetchone()
 
     if product is None:
         abort(404, description="No product with provided product id found")
 
     return jsonify(product)
-
-
-
-

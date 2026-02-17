@@ -1,6 +1,6 @@
 from flask import Blueprint, abort, jsonify
 import psycopg
-from .db import *
+from ..db import *
 review_bp = Blueprint('review', __name__)
 
 # Perhaps change so it can take product_id or user_id
@@ -10,10 +10,10 @@ def get_reviews_by_id(productID):
     cur = db.cursor()
 
     cur.execute(
-        "SELECT * FROM review WHERE product_id = %(id)s;" , {'id':productID}
+        "SELECT * FROM review WHERE product_id = %(id)s;", {'id': productID}
     )
 
-    reviews = cur.fetchall();
+    reviews = cur.fetchall()
 
     if reviews is None:
         abort(404, description="No reviews for provided product id found")

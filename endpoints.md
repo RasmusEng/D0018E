@@ -9,7 +9,7 @@ POST products/create (Admin)
 
 ### PATCH
 PATCH products/change_product:id (Admin)  
-PATCH products/change_stock:id  
+PATCH products/change_stock:id  (AUTH)
 
 ### DEL
 DEL products/product:id (AUTH)
@@ -18,7 +18,7 @@ DEL products/product:id (AUTH)
 ### GET
 GET review/product:id   
 
-POST review/create  
+POST review/create (AUTH)
 
 ### PATCH
 PATCH review/edit:id (AUTH)  

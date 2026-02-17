@@ -1,15 +1,13 @@
 import os
 from . import db
-from . import products
-from . import review
-from . import orders
-from . import order_items
-from . import users
+from .endpoints import products
+from .endpoints import review
+from .endpoints import orders
+from .endpoints import order_items
+from .endpoints import users
 from flask import Flask
 
 # Might need to change here for pool
-
-
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
@@ -28,6 +26,5 @@ def create_app(test_config=None):
     app.register_blueprint(orders.orders_bp)
     app.register_blueprint(order_items.order_items_bp)
     app.register_blueprint(users.users_bp)
-    
 
     return app

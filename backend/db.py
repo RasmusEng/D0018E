@@ -3,7 +3,7 @@ import psycopg
 import os
 from dotenv import load_dotenv
 from psycopg.rows import dict_row
-from psycopg_pool import ConnectionPool
+# from psycopg_pool import ConnectionPool
 
 from flask import current_app, g
 
@@ -28,23 +28,20 @@ def close_db(e=None):
     if db is not None:
         db.close()
 
-
 def init_db():
     db = get_db()
-    cur = db.cursor()
-
-    with current_app.open_resource('schema.sql') as f:
-        cur.execute(f.read().decode('utf8'))
+    with db.cursosr as cur:
+        with current_app.open_resource('sql/schema.sql') as f:
+            cur.execute(f.read().decode('utf8'))
 
     db.commit()
 
-
 def load_dummy_data():
     db = get_db()
-    cur = db.cursor()
 
-    with current_app.open_resource('dummyData.sql') as f:
-        cur.execute(f.read().decode('utf8'))
+    with db.cursosr as cur:
+        with current_app.open_resource('sql/dummyData.sql') as f:
+            cur.execute(f.read().decode('utf8'))
 
     db.commit()
 
