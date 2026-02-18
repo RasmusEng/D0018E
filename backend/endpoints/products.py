@@ -3,7 +3,7 @@ import psycopg
 from ..db import *
 products_bp = Blueprint('products', __name__)
 
-
+# Gemini and flask doc
 @products_bp.route('/products', methods=['GET'])
 def get_all_products():
     db = get_db()
@@ -16,10 +16,11 @@ def get_all_products():
         products = cur.fetchall()
 
     if products is None:
-        abort(404)
+        abort(404, desciption="No products found ")
 
     return jsonify(products)
 
+# Gemini and flask doc 
 # Add so reviews are also sent
 @products_bp.route('/products/<int:productID>', methods=['GET'])
 def get_product_by_id(productID):

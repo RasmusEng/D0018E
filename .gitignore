@@ -94,6 +94,8 @@ out/
 # From Flask documentation
 .venv/
 
+venv/
+
 *.pyc
 __pycache__/
 
