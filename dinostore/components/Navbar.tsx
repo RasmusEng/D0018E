@@ -1,6 +1,14 @@
 import Link from "next/link";
 
+import Cart from "./Cart";
+
+
 export default function Navbar() {
+  const cartItems = [
+    { id: "1", name: "T-Rex Steak", price: 29.99, quantity: 2 },
+    { id: "2", name: "Triceratops Salad", price: 19.99, quantity: 1 },
+  ];
+
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-zinc-200 bg-white/80 backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950/80">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
@@ -17,10 +25,11 @@ export default function Navbar() {
 >
   Login
 </Link>
-          <button className="rounded-full bg-zinc-900 px-4 py-2 text-white transition hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200">
-            Cart (0)
-          </button>
         </div>
+        <Cart items={[
+          { id: "1", name: "T-Rex Steak", price: 29.99, quantity: 2 },
+          { id: "2", name: "Triceratops Salad", price: 19.99, quantity: 1 },
+        ]} />
       </div>
     </nav>
   );
