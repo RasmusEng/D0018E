@@ -30,7 +30,7 @@ def close_db(e=None):
 
 def init_db():
     db = get_db()
-    with db.cursosr as cur:
+    with db.cursor() as cur:
         with current_app.open_resource('sql/schema.sql') as f:
             cur.execute(f.read().decode('utf8'))
 
@@ -39,7 +39,7 @@ def init_db():
 def load_dummy_data():
     db = get_db()
 
-    with db.cursosr as cur:
+    with db.cursor() as cur:
         with current_app.open_resource('sql/dummyData.sql') as f:
             cur.execute(f.read().decode('utf8'))
 
