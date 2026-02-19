@@ -1,13 +1,8 @@
 import click
 import psycopg
-import os
-from dotenv import load_dotenv
 from psycopg.rows import dict_row
-# from psycopg_pool import ConnectionPool
-
 from flask import current_app, g
-
-load_dotenv()
+# from psycopg_pool import ConnectionPool
 
 # Create connection pool
 # pool = ConnectionPool(conninfo=os.environ.get("DB_URL"), kwargs={"row_factory":dict_row}, open=True, min_size=1, max_size=10)
@@ -16,7 +11,7 @@ load_dotenv()
 def get_db():
     if 'db' not in g:
         g.db = psycopg.connect(
-            conninfo=os.environ.get("DB_URL"),
+            current_app.config["DATABASE_URL"],
             row_factory=dict_row
         )
     return g.db
@@ -30,7 +25,7 @@ def close_db(e=None):
 
 def init_db():
     db = get_db()
-    with db.cursosr as cur:
+    with db.cursosr() as cur:
         with current_app.open_resource('sql/schema.sql') as f:
             cur.execute(f.read().decode('utf8'))
 
@@ -39,7 +34,7 @@ def init_db():
 def load_dummy_data():
     db = get_db()
 
-    with db.cursosr as cur:
+    with db.cursor() as cur:
         with current_app.open_resource('sql/dummyData.sql') as f:
             cur.execute(f.read().decode('utf8'))
 

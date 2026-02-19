@@ -7,7 +7,7 @@ products_bp = Blueprint('products', __name__)
 @products_bp.route('/products', methods=['GET'])
 def get_all_products():
     db = get_db()
-    with db.cursosr as cur:
+    with db.cursor() as cur:
 
         cur.execute(
             "SELECT * FROM products;"
@@ -24,7 +24,7 @@ def get_all_products():
 @products_bp.route('/products/<int:productID>', methods=['GET'])
 def get_product_by_id(productID):
     db = get_db()
-    with db.cursosr as cur:
+    with db.cursor() as cur:
 
         cur.execute(
             "SELECT * FROM products WHERE product_id = %(id)s;", {
