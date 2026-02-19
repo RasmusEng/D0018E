@@ -3,12 +3,14 @@ import Navbar from "@/components/Navbar";
 import ProductCard from "@/components/ProductCard";
 import Features from "@/components/Features";
 
+
 async function getDinosaurs() {
   try {
-    const response = await fetch(`/api/products/products`, {
+    const response = await fetch('http://127.0.0.1:5000/products/products', {
       method: 'GET', // Changed to GET to retrieve the whole list
       headers: {
         'Content-Type': 'application/json',
+        cache: 'no-store', // Ensure we get fresh data on every request
       },
     });
 

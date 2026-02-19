@@ -5,6 +5,7 @@ import { ShoppingCart, X, Loader2 } from 'lucide-react';
 
 interface CartItem {
     id: string;
+    _id?: string; // Support for MongoDB-style IDs
     name: string;
     price: number;
     quantity: number;
@@ -24,24 +25,26 @@ const Cart: React.FC<CartProps> = ({ onRemove }) => {
     useEffect(() => {
         const fetchCart = async () => {
             setIsLoading(true);
-            const token = localStorage.getItem('access_token'); // Or your preferred token storage
-            console.log('Fetching cart with token:', token);
+            const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+            
             try {
                 const response = await fetch('/api/orders/getUsersCart', {
                     method: 'GET',
-                    headers: {
+                    headers: { 
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
-                    },// Add this if the server expects a body
+                    },
                 });
 
                 if (!response.ok) throw new Error('Failed to fetch cart');
 
                 const data = await response.json();
-                setItems(data.items || []);
+                // Standardize data: handle { items: [...] } or direct array [...]
+                const cartData = Array.isArray(data) ? data : (data.items || []);
+                setItems(cartData);
             } catch (err) {
                 setError('Could not load your specimen box.');
-                console.error(err);
+                console.error("Fetch Error:", err);
             } finally {
                 setIsLoading(false);
             }
@@ -50,7 +53,19 @@ const Cart: React.FC<CartProps> = ({ onRemove }) => {
         fetchCart();
     }, []);
 
-    const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    // 2. Handle Removal (Prop + Local State for Speed)
+    const handleRemove = (itemId: string) => {
+        if (onRemove) onRemove(itemId);
+        // Optimistic update: filter out the item by id OR _id
+        setItems(prev => prev.filter(item => (item.id || item._id) !== itemId));
+    };
+
+    // 3. Safe Subtotal Calculation
+    const total = items.reduce((sum, item) => {
+        const price = Number(item.price) || 0;
+        const qty = Number(item.quantity) || 0;
+        return sum + (price * qty);
+    }, 0);
 
     return (
         <>
@@ -66,7 +81,7 @@ const Cart: React.FC<CartProps> = ({ onRemove }) => {
                 </span>
             </button>
 
-            {/* Sidebar */}
+            {/* Sidebar Overlay */}
             <div className={`
                 fixed right-0 top-0 h-screen w-full sm:w-96 bg-white dark:bg-zinc-950 
                 border-l border-zinc-200 dark:border-zinc-800 
@@ -75,6 +90,7 @@ const Cart: React.FC<CartProps> = ({ onRemove }) => {
                 ${isOpen ? 'translate-x-0' : 'translate-x-full'}
             `}>
                 <div className="flex h-full flex-col">
+                    {/* Header */}
                     <div className="flex items-center justify-between p-6 border-b border-zinc-100 dark:border-zinc-900">
                         <h2 className="text-xl font-black uppercase tracking-tight">Your Specimen Box</h2>
                         <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg">
@@ -82,6 +98,7 @@ const Cart: React.FC<CartProps> = ({ onRemove }) => {
                         </button>
                     </div>
 
+                    {/* Cart Items List */}
                     <div className="flex-1 overflow-y-auto p-6">
                         {isLoading ? (
                             <div className="flex flex-col items-center justify-center h-40 gap-2">
@@ -91,25 +108,35 @@ const Cart: React.FC<CartProps> = ({ onRemove }) => {
                         ) : error ? (
                             <p className="text-rose-500 text-sm">{error}</p>
                         ) : items.length === 0 ? (
-                            <p className="text-zinc-500 text-sm">Your cart is as empty as the Cretaceous period.</p>
+                            <p className="text-zinc-500 text-sm italic">Your cart is as empty as the Cretaceous period.</p>
                         ) : (
-                            items.map(item => (
-                                <div key={item.id} className="flex justify-between mb-4 border-b border-zinc-200 dark:border-zinc-800 pb-4">
-                                    <div>
-                                        <p className="font-bold text-sm">{item.name}</p>
-                                        <p className="text-xs text-zinc-500">{item.quantity}x — ${item.price}</p>
+                            items.map((item, idx) => {
+                                // FIX: Use ID from API, or fallback to index to avoid key error
+                                const itemKey = item.id || item._id || `item-${idx}`;
+                                // FIX: Force price to number to avoid .toFixed(2) crash
+                                const priceVal = Number(item.price) || 0;
+
+                                return (
+                                    <div key={itemKey} className="flex justify-between mb-4 border-b border-zinc-200 dark:border-zinc-800 pb-4">
+                                        <div>
+                                            <p className="font-bold text-sm">{item.name || "Unknown Item"}</p>
+                                            <p className="text-xs text-zinc-500">
+                                                {item.quantity}x — ${priceVal.toFixed(2)}
+                                            </p>
+                                        </div>
+                                        <button
+                                            onClick={() => handleRemove(item.id || item._id || '')}
+                                            className="text-[10px] font-bold text-rose-500 uppercase hover:underline"
+                                        >
+                                            Remove
+                                        </button>
                                     </div>
-                                    <button
-                                        onClick={() => onRemove?.(item.id)}
-                                        className="text-[10px] font-bold text-rose-500 uppercase hover:underline"
-                                    >
-                                        Remove
-                                    </button>
-                                </div>
-                            ))
+                                );
+                            })
                         )}
                     </div>
 
+                    {/* Footer */}
                     <div className="p-6 border-t border-zinc-100 dark:border-zinc-900 bg-zinc-50/50 dark:bg-zinc-900/50">
                         <div className="flex justify-between mb-6">
                             <span className="text-zinc-500 uppercase text-xs font-black">Subtotal</span>
@@ -125,7 +152,7 @@ const Cart: React.FC<CartProps> = ({ onRemove }) => {
                 </div>
             </div>
 
-            {/* Overlay Logic */}
+            {/* Background Backdrop */}
             {isOpen && (
                 <div
                     className="fixed inset-0 z-[55] bg-black/20 backdrop-blur-[2px]"

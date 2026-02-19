@@ -21,6 +21,7 @@ interface Dinosaur {
 
 export default function ProductCard({ product }: { product: Dinosaur }) {
   const [isAdding, setIsAdding] = useState(false);
+  console.log("Rendering ProductCard for:", product.id, product.name);
 
   if (!product) return <div className="h-96 w-full animate-pulse rounded-3xl bg-zinc-900" />;
 
