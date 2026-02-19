@@ -11,13 +11,13 @@ export default function Navbar() {
 
   // Check login status on mount
   useEffect(() => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("access_token");
     setIsLoggedIn(!!token);
   }, []);
 
   const handleLogout = () => {
     // 1. Clear the session storage
-    sessionStorage.removeItem("token");
+    localStorage.removeItem("access_token");
     
     // 2. Update local state
     setIsLoggedIn(false);
@@ -59,10 +59,7 @@ export default function Navbar() {
             </Link>
           )}
 
-          <Cart items={[
-            { id: "1", name: "T-Rex Steak", price: 29.99, quantity: 2 },
-            { id: "2", name: "Triceratops Salad", price: 19.99, quantity: 1 },
-          ]} />
+          <Cart />
         </div>
       </div>
     </nav>

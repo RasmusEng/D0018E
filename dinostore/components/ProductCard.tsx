@@ -1,8 +1,11 @@
 "use client";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Loader2 } from "lucide-react"; // Optional: for a loading spinner
 
 interface Dinosaur {
+  id: number; // Ensure your interface includes the ID
   name: string;
   weight: string;
   height: string;
@@ -17,7 +20,8 @@ interface Dinosaur {
 }
 
 export default function ProductCard({ product }: { product: Dinosaur }) {
-  // Skeleton Loader for missing product
+  const [isAdding, setIsAdding] = useState(false);
+
   if (!product) return <div className="h-96 w-full animate-pulse rounded-3xl bg-zinc-900" />;
 
   const isCarnivore = product.diet.toLowerCase().includes("carnivore");
@@ -25,17 +29,47 @@ export default function ProductCard({ product }: { product: Dinosaur }) {
     ? "bg-rose-500/20 text-rose-400 border-rose-500/30" 
     : "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
 
-  // Robust slug: lowercase, replace spaces with hyphens, remove non-alphanumeric
   const slug = product.name
     .toLowerCase()
     .replace(/\s+/g, '-')
     .replace(/[^\w-]+/g, '');
 
-  const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
+  // --- API Call Integration ---
+  const handleAddToCart = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault(); 
     e.stopPropagation(); 
-    console.log(`Added ${product.name} to cart`);
-    // Add your toast notification or context call here
+    
+    setIsAdding(true);
+    const token = localStorage.getItem('access_token');
+    console.log('Adding to cart:', product.id);
+
+    try {
+      const response = await fetch('/api/orders/addToCart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          product_id: product.id // Dynamic ID from the product prop
+        })
+      });
+      
+
+      if (!response.ok) {
+        throw new Error('Failed to add specimen to box');
+      }
+
+      const result = await response.json();
+      console.log('Success:', result);
+      
+      // Optional: Add a success "toast" or temporary button text change here
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      alert("Could not update the specimen box.");
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   return (
@@ -71,7 +105,6 @@ export default function ProductCard({ product }: { product: Dinosaur }) {
             {product.description}
           </p>
 
-          {/* Stats Bar */}
           <div className="mt-auto pt-4">
             <div className="grid grid-cols-4 gap-2 border-t border-zinc-800 pt-4 text-[9px] font-bold uppercase tracking-tighter">
               <Stat label="Weight" value={product.weight} color="text-emerald-500" />
@@ -82,8 +115,19 @@ export default function ProductCard({ product }: { product: Dinosaur }) {
             
             <button 
               onClick={handleAddToCart}
-              className="mt-4 w-full bg-emerald-500 hover:bg-emerald-400 text-black font-black py-3 rounded-2xl text-[10px] uppercase tracking-widest transition-all active:scale-[0.95] z-20">
-              Add to cart
+              disabled={isAdding || product.stock === 0}
+              className="mt-4 flex w-full items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-800 disabled:text-zinc-600 text-black font-black py-3 rounded-2xl text-[10px] uppercase tracking-widest transition-all active:scale-[0.95] z-20"
+            >
+              {isAdding ? (
+                <>
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  Securing...
+                </>
+              ) : product.stock === 0 ? (
+                "Extinct"
+              ) : (
+                "Add to cart"
+              )}
             </button>
           </div>
         </div>
@@ -92,7 +136,6 @@ export default function ProductCard({ product }: { product: Dinosaur }) {
   );
 }
 
-// Small helper component for the stats to keep the JSX clean
 function Stat({ label, value, color = "text-white", isLast = false }: { label: string; value: string; color?: string; isLast?: boolean }) {
   return (
     <div className={`flex flex-col ${!isLast ? "border-l border-zinc-800 pl-2 first:border-l-0 first:pl-0" : ""}`}>

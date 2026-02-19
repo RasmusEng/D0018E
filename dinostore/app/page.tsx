@@ -1,64 +1,31 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation"; // 1. Import useRouter
-import Link from "next/link";
+import { cookies } from "next/headers";
 import Navbar from "@/components/Navbar";
 import ProductCard from "@/components/ProductCard";
 import Features from "@/components/Features";
 
-export default function Home() {
-  const router = useRouter(); // 2. Initialize the router
-  const [dinosaurs, setDinosaurs] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+async function getDinosaurs() {
+  try {
+    const response = await fetch(`/api/products/products`, {
+      method: 'GET', // Changed to GET to retrieve the whole list
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-  useEffect(() => {
-    // 3. Check for the token
-    const token = sessionStorage.getItem("token");
-
-    // 4. REDIRECT LOGIC: If no token, kick them to login
-    if (!token) {
-      router.push("/login");
-      return; // Stop execution here
-    }
-
-    const fetchDinosaurs = async () => {
-      try {
-        // Use the /api proxy to avoid CORS
-        const res = await fetch("/api/products/products", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}` 
-          },
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          setDinosaurs(data);
-        } else if (res.status === 401) {
-          // Token might be expired or invalid
-          sessionStorage.removeItem("token");
-          router.push("/login");
-        }
-      } catch (err) {
-        console.error("System Error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDinosaurs();
-  }, [router]);
-
-  // While redirecting or loading, show a neutral background so the page doesn't "flash"
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" />
-      </div>
-    );
+    if (!response.ok) throw new Error('Failed to fetch inventory');
+// Log raw response for debugging
+    console.log("Raw response:");
+    // Actually return the parsed data so the component can use it
+    return await response.json(); 
+  } catch (error) {
+    console.error('Error:', error);
+    return []; // Return an empty array on failure to prevent .length and .map from crashing
   }
+}
+
+export default async function Home() {
+  const dinosaurs = await getDinosaurs();
+  console.log("Fetched Dinosaurs:", dinosaurs);
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans selection:bg-emerald-500/30">
@@ -73,35 +40,47 @@ export default function Home() {
             <br /> Inventory
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-zinc-400">
-            Welcome, Geneticist. Displaying <span className="text-white font-bold">{dinosaurs.length}</span> specimens.
+            Currently displaying <span className="text-white font-bold">{dinosaurs.length}</span> genetically verified specimens 
+            retrieved from our secure data labs.
           </p>
         </header>
 
         <section className="pb-24">
           <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
             {dinosaurs.map((row: any) => {
+              // Mapping DB schema to Component Props
               const product = {
+                id: row.product_id,
                 name: row.product_name,
                 diet: row.diet,
                 type: row.dino_type,
-                period: "Late Cretaceous",
+                period: row.period || "Unknown Era", 
                 image: row.image,
                 description: row.description,
                 region: row.region,
-                height: String(row.height),
-                length: String(row.length),
-                weight: String(row.weight),
+                height: `${row.height}m`,
+                length: `${row.length}m`,
+                weight: `${row.weight}kg`,
                 price: Number(row.price),
                 stock: Number(row.stock),
               };
 
-              return <ProductCard key={row.product_id} product={product} />;
+              return (
+                <ProductCard
+                  key={row.product_id}
+                  product={product}
+                />
+              );
             })}
           </div>
         </section>
 
         <Features />
       </main>
+
+      <footer className="py-12 text-center text-xs text-zinc-600 uppercase tracking-widest border-t border-zinc-900">
+        © 2026 InGen Procurement Division
+      </footer>
     </div>
   );
 }

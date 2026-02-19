@@ -53,7 +53,7 @@ export default function AuthPage() {
       if (response.ok) {
         if (mode === 'login') {
           // Store the JWT token
-          sessionStorage.setItem("token", data.access_token);
+          localStorage.setItem("access_token", data.access_token);
           setStatus({ message: "ACCESS GRANTED. REDIRECTING...", type: 'success' });
           setTimeout(() => router.push("/"), 1000);
         } else {
@@ -69,7 +69,7 @@ export default function AuthPage() {
   }
 
   async function testAdminAccess() {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("access_token");
     if (!token) {
       setStatus({ message: "NO ACTIVE SESSION FOUND", type: 'error' });
       return;
