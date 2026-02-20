@@ -16,13 +16,8 @@ export default function Navbar() {
   }, []);
 
   const handleLogout = () => {
-    // 1. Clear the session storage
     localStorage.removeItem("access_token");
-    
-    // 2. Update local state
     setIsLoggedIn(false);
-    
-    // 3. Teleport back to login
     router.push("/login");
   };
 

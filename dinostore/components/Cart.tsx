@@ -4,15 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { ShoppingCart, X, Loader2 } from 'lucide-react'; 
 
 interface CartItem {
-    id: string;
-    _id?: string; // Support for MongoDB-style IDs
-    name: string;
-    price: number;
+    product_id: number;
+    product_name: string;
+    unit_price: number;
     quantity: number;
 }
 
 interface CartProps {
-    onRemove?: (id: string) => void;
+    onRemove?: (id: number) => void;
 }
 
 const Cart: React.FC<CartProps> = ({ onRemove }) => {
@@ -39,7 +38,6 @@ const Cart: React.FC<CartProps> = ({ onRemove }) => {
                 if (!response.ok) throw new Error('Failed to fetch cart');
 
                 const data = await response.json();
-                // Standardize data: handle { items: [...] } or direct array [...]
                 const cartData = Array.isArray(data) ? data : (data.items || []);
                 setItems(cartData);
             } catch (err) {
@@ -57,12 +55,12 @@ const Cart: React.FC<CartProps> = ({ onRemove }) => {
     const handleRemove = (itemId: string) => {
         if (onRemove) onRemove(itemId);
         // Optimistic update: filter out the item by id OR _id
-        setItems(prev => prev.filter(item => (item.id || item._id) !== itemId));
+        setItems(prev => prev.filter(item => (item.product_id?.toString() !== itemId)));
     };
 
     // 3. Safe Subtotal Calculation
     const total = items.reduce((sum, item) => {
-        const price = Number(item.price) || 0;
+        const price = Number(item.unit_price) || 0;
         const qty = Number(item.quantity) || 0;
         return sum + (price * qty);
     }, 0);
@@ -112,20 +110,20 @@ const Cart: React.FC<CartProps> = ({ onRemove }) => {
                         ) : (
                             items.map((item, idx) => {
                                 // FIX: Use ID from API, or fallback to index to avoid key error
-                                const itemKey = item.id || item._id || `item-${idx}`;
+                                const itemKey = item.product_id || item._id || `item-${idx}`;
                                 // FIX: Force price to number to avoid .toFixed(2) crash
-                                const priceVal = Number(item.price) || 0;
+                                const priceVal = Number(item.unit_price) || 0;
 
                                 return (
                                     <div key={itemKey} className="flex justify-between mb-4 border-b border-zinc-200 dark:border-zinc-800 pb-4">
                                         <div>
-                                            <p className="font-bold text-sm">{item.name || "Unknown Item"}</p>
+                                            <p className="font-bold text-sm">{item.product_name || "Unknown Item"}</p>
                                             <p className="text-xs text-zinc-500">
                                                 {item.quantity}x — ${priceVal.toFixed(2)}
                                             </p>
                                         </div>
                                         <button
-                                            onClick={() => handleRemove(item.id || item._id || '')}
+                                            onClick={() => handleRemove(item.product_id?.toString() || '')}
                                             className="text-[10px] font-bold text-rose-500 uppercase hover:underline"
                                         >
                                             Remove

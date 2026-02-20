@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default function AuthPage() {
   // Use the proxy path defined in next.config.mjs
-  const API_BASE_URL = "/api"; 
+  const API_BASE_URL = "http://127.0.0.1:5000";
   const router = useRouter();
   const [mode, setMode] = useState<'login' | 'register'>('login');
 
@@ -68,33 +68,31 @@ export default function AuthPage() {
     }
   }
 
-  async function testAdminAccess() {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      setStatus({ message: "NO ACTIVE SESSION FOUND", type: 'error' });
-      return;
+async function testAdminAccess() {
+  try {
+    const response = await fetch('http://127.0.0.1:5000/auth/checkAdminCredentials', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+
+    // Check if the response is actually JSON before parsing
+    const contentType = response.headers.get("content-type");
+    const data = contentType?.includes("application/json") ? await response.json() : null;
+
+    if (response.ok) {
+      setStatus({ message: "ADMIN ACCESS CONFIRMED", type: 'success' });
+      // Usually, you'd save a token here: localStorage.setItem('token', data.token);
+    } else {
+      // Use the error message from the server if available
+      const errorMsg = data?.message || "INSUFFICIENT PERMISSIONS";
+      setStatus({ message: errorMsg.toUpperCase(), type: 'error' });
     }
-
-    setStatus({ message: "REQUESTING LEVEL 5 CLEARANCE...", type: 'loading' });
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/verifyAdmin`, {
-        method: "GET",
-        headers: { 
-          // Match your Bearer token requirement
-          "Authorization": `Bearer ${token}` 
-        }
-      });
-
-      if (response.ok) {
-        setStatus({ message: "ADMIN ACCESS CONFIRMED", type: 'success' });
-      } else {
-        setStatus({ message: "INSUFFICIENT PERMISSIONS", type: 'error' });
-      }
-    } catch (error) {
-      setStatus({ message: "VERIFICATION SYSTEM OFFLINE", type: 'error' });
-    }
+  } catch (error) {
+    console.error("Connection Error:", error);
+    setStatus({ message: "VERIFICATION SYSTEM OFFLINE", type: 'error' });
   }
+}
 
   return (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center px-6 selection:bg-emerald-500/30">

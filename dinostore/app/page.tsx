@@ -15,8 +15,6 @@ async function getDinosaurs() {
     });
 
     if (!response.ok) throw new Error('Failed to fetch inventory');
-// Log raw response for debugging
-    console.log("Raw response:");
     // Actually return the parsed data so the component can use it
     return await response.json(); 
   } catch (error) {
@@ -27,7 +25,6 @@ async function getDinosaurs() {
 
 export default async function Home() {
   const dinosaurs = await getDinosaurs();
-  console.log("Fetched Dinosaurs:", dinosaurs);
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans selection:bg-emerald-500/30">
