@@ -1,23 +1,24 @@
-"use client"; // Required for hooks and event handlers
+"use client";
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Cart from "./Cart";
+import { useAppStore } from "@/store/useAppStore"; // Adjust import path if needed
 
 export default function Navbar() {
   const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  // Hook into our global store
+  const { isLoggedIn, checkAuth, logout } = useAppStore();
 
-  // Check login status on mount
+  // Check auth status on initial load
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    setIsLoggedIn(!!token);
-  }, []);
+    checkAuth();
+  }, [checkAuth]);
 
   const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    setIsLoggedIn(false);
+    logout();
     router.push("/login");
   };
 
@@ -25,7 +26,6 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 w-full border-b border-zinc-200 bg-white/80 backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950/80">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         
-        {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
           <span className="text-2xl font-bold tracking-tighter text-emerald-600 dark:text-emerald-500 group-hover:italic transition-all">
             DINO<span className="text-zinc-900 dark:text-white">STORE</span>
@@ -37,7 +37,6 @@ export default function Navbar() {
             Catalog
           </Link>
 
-          {/* Conditional Auth Button */}
           {isLoggedIn ? (
             <button
               onClick={handleLogout}

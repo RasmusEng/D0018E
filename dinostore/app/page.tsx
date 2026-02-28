@@ -1,25 +1,22 @@
-import { cookies } from "next/headers";
 import Navbar from "@/components/Navbar";
 import ProductCard from "@/components/ProductCard";
-import Features from "@/components/Features";
-
+import Features from "@/components/Features"; // Assuming you have this
 
 async function getDinosaurs() {
   try {
     const response = await fetch('http://127.0.0.1:5000/products/products', {
-      method: 'GET', // Changed to GET to retrieve the whole list
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        cache: 'no-store', // Ensure we get fresh data on every request
+        cache: 'no-store',
       },
     });
 
     if (!response.ok) throw new Error('Failed to fetch inventory');
-    // Actually return the parsed data so the component can use it
     return await response.json(); 
   } catch (error) {
     console.error('Error:', error);
-    return []; // Return an empty array on failure to prevent .length and .map from crashing
+    return []; 
   }
 }
 
@@ -47,7 +44,6 @@ export default async function Home() {
         <section className="pb-24">
           <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
             {dinosaurs.map((row: any) => {
-              // Mapping DB schema to Component Props
               const product = {
                 id: row.product_id,
                 name: row.product_name,

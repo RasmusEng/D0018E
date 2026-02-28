@@ -2,10 +2,12 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Loader2 } from "lucide-react"; // Optional: for a loading spinner
+import { Loader2 } from "lucide-react";
+import { useAppStore } from "@/store/useAppStore"; // Adjust import path if needed
+
 
 interface Dinosaur {
-  id: number; // Ensure your interface includes the ID
+  id: number;
   name: string;
   weight: string;
   height: string;
@@ -21,7 +23,7 @@ interface Dinosaur {
 
 export default function ProductCard({ product }: { product: Dinosaur }) {
   const [isAdding, setIsAdding] = useState(false);
-  console.log("Rendering ProductCard for:", product.id, product.name);
+  const triggerCartRefresh = useAppStore((state) => state.triggerCartRefresh);
 
   if (!product) return <div className="h-96 w-full animate-pulse rounded-3xl bg-zinc-900" />;
 
@@ -30,44 +32,34 @@ export default function ProductCard({ product }: { product: Dinosaur }) {
     ? "bg-rose-500/20 text-rose-400 border-rose-500/30" 
     : "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
 
-  const slug = product.name
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^\w-]+/g, '');
+  const slug = product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
-  // --- API Call Integration ---
   const handleAddToCart = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault(); 
     e.stopPropagation(); 
     
     setIsAdding(true);
     const token = localStorage.getItem('access_token');
-    console.log('Adding to cart:', product.id);
 
     try {
+      console.log('Adding to cart:', product.id);
       const response = await fetch('/api/orders/addToCart', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({
-          product_id: product.id // Dynamic ID from the product prop
-        })
+        body: JSON.stringify({ product_id: product.id })
       });
-      
 
-      if (!response.ok) {
-        throw new Error('Failed to add specimen to box');
-      }
-
-      const result = await response.json();
-      console.log('Success:', result);
+      if (!response.ok) throw new Error('Failed to add specimen to box');
       
-      // Optional: Add a success "toast" or temporary button text change here
+      // SUCCESS! Trigger the cart to refresh its data
+      triggerCartRefresh(); 
+      
     } catch (error) {
       console.error('Error adding to cart:', error);
-      alert("Could not update the specimen box.");
+      alert("Could not update the specimen incubator.");
     } finally {
       setIsAdding(false);
     }
@@ -77,7 +69,6 @@ export default function ProductCard({ product }: { product: Dinosaur }) {
     <Link href={`/dinosaurs/${slug}`} className="block group">
       <div className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900 p-3 transition-all duration-300 hover:border-emerald-500/50 hover:shadow-[0_0_40px_-15px_rgba(16,185,129,0.3)]">
         
-        {/* Image Container */}
         <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-zinc-800/50">
           <Image 
             src={product.image} 
@@ -91,7 +82,6 @@ export default function ProductCard({ product }: { product: Dinosaur }) {
           </div>
         </div>
 
-        {/* Content */}
         <div className="mt-4 flex flex-1 flex-col px-2 pb-2">
           <div className="flex items-start justify-between gap-2">
             <h3 className="text-xl font-black capitalize text-white group-hover:text-emerald-400 transition-colors leading-tight">
@@ -120,10 +110,7 @@ export default function ProductCard({ product }: { product: Dinosaur }) {
               className="mt-4 flex w-full items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-800 disabled:text-zinc-600 text-black font-black py-3 rounded-2xl text-[10px] uppercase tracking-widest transition-all active:scale-[0.95] z-20"
             >
               {isAdding ? (
-                <>
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  Securing...
-                </>
+                <><Loader2 className="h-3 w-3 animate-spin" /> Securing...</>
               ) : product.stock === 0 ? (
                 "Extinct"
               ) : (
