@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { Loader2, X } from "lucide-react"; // <-- Added X icon
-import { useAppStore } from "@/store/useAppStore"; 
+import { useAppStore } from "@/store/useAppStore";
 
 interface CartItem {
   product_id: number;
@@ -25,7 +25,7 @@ export default function Cart() {
   const [totals, setTotals] = useState<CartTotals | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [removingId, setRemovingId] = useState<number | null>(null); // <-- Added state for deleting
-  
+
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const { cartUpdateTrigger, triggerCartRefresh, isLoggedIn } = useAppStore();
@@ -41,9 +41,9 @@ export default function Cart() {
       try {
         const response = await fetch('/api/orders/getUsersCart', {
           method: 'GET',
-          headers: { 
+          headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` 
+            'Authorization': `Bearer ${token}`
           }
         });
 
@@ -112,7 +112,7 @@ export default function Cart() {
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <button 
+      <button
         onClick={() => setIsOpen(!isOpen)}
         className="hidden sm:flex items-center gap-3 border border-zinc-800 px-4 py-2 rounded-xl bg-zinc-900/50 hover:border-emerald-500/50 transition-colors cursor-pointer group"
       >
@@ -138,10 +138,10 @@ export default function Cart() {
               items.map((item, index) => (
                 <div key={`${item.product_id}-${index}`} className="flex items-center gap-4 group/item">
                   <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-zinc-900 border border-zinc-800">
-                    <Image 
-                      src={item.image_url} 
-                      alt={item.product_name} 
-                      fill 
+                    <Image
+                      src={item.image_url}
+                      alt={item.product_name}
+                      fill
                       unoptimized
                       className="object-contain p-1"
                     />
@@ -150,12 +150,12 @@ export default function Cart() {
                     <span className="text-sm font-bold text-white capitalize">{item.product_name}</span>
                     <span className="text-xs text-zinc-500">Qty: {item.quantity} × ${item.unit_price}</span>
                   </div>
-                  
+
                   <div className="text-right flex items-center gap-3">
                     <span className="text-sm font-bold text-emerald-400">${item.total_price}</span>
-                    
+
                     {/* NEW: The Remove Button */}
-                    <button 
+                    <button
                       onClick={() => handleRemoveItem(item.product_id)}
                       disabled={removingId === item.product_id}
                       className="text-zinc-600 hover:text-red-400 transition-colors disabled:opacity-50"
@@ -183,10 +183,15 @@ export default function Cart() {
                 <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Subtotal:</span>
                 <span className="text-xl font-black text-white">${totals.total_price.toLocaleString()}</span>
               </div>
-              
-              <button className="mt-4 w-full rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black py-3 text-xs uppercase tracking-widest transition-all active:scale-[0.98]">
-                Initialize Transport (Checkout)
-              </button>
+
+              <form action="/checkout" className="mt-4 w-full">
+                <button
+                  type="submit"
+                  className="w-full rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black py-3 text-xs uppercase tracking-widest transition-all active:scale-[0.98]"
+                >
+                  Initialize Transport (Checkout)
+                </button>
+              </form>
             </div>
           )}
         </div>

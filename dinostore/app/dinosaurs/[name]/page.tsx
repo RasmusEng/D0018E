@@ -17,6 +17,34 @@ async function getDinoData(name: string) {
   }
 }
 
+// Mock review data (replace this with a real fetch or database call later)
+const mockReviews = [
+  {
+    id: 1,
+    author: "Dr. Ian Malcolm",
+    role: "Chaotician",
+    rating: 5,
+    date: "2026-02-15",
+    text: "An absolutely stunning specimen. The structural integrity of the skeletal remains suggests highly dynamic movement patterns. Nature always finds a way to impress."
+  },
+  {
+    id: 2,
+    author: "Dr. Ellie Sattler",
+    role: "Paleobotanist",
+    rating: 4,
+    date: "2026-01-28",
+    text: "Fascinating creature. Based on the dental structure, its interaction with the local flora was likely aggressive. A vital addition to any serious genetic reserve."
+  },
+  {
+    id: 3,
+    author: "Alan Grant",
+    role: "Lead Paleontologist",
+    rating: 5,
+    date: "2025-11-04",
+    text: "They're moving in herds. They do move in herds. The mass and height stats perfectly align with our Badlands dig site findings."
+  }
+];
+
 export default async function DinoDetailPage({ params }: { params: Promise<{ name: string }> }) {
   const { name } = await params;
   const dino = await getDinoData(name);
@@ -34,7 +62,6 @@ export default async function DinoDetailPage({ params }: { params: Promise<{ nam
     );
   }
 
-  // Consistent logic with your ProductCard
   const isCarnivore = dino.diet?.toLowerCase().includes("carnivore");
 
   return (
@@ -55,7 +82,7 @@ export default async function DinoDetailPage({ params }: { params: Promise<{ nam
               src={dino.image} 
               alt={dino.name} 
               fill 
-              priority // High priority loading for LCP
+              priority
               className="object-contain p-12 transition-transform duration-700 group-hover:scale-105" 
               unoptimized 
             />
@@ -100,12 +127,34 @@ export default async function DinoDetailPage({ params }: { params: Promise<{ nam
             </div>
           </div>
         </div>
+
+        {/* --- NEW REVIEWS SECTION --- */}
+        <section className="mt-24 pt-16 border-t border-zinc-800/50">
+          <div className="flex items-center justify-between mb-10">
+            <div>
+              <h2 className="text-3xl font-black uppercase tracking-tighter text-white mb-2">Researcher Logs</h2>
+              <p className="text-zinc-500 text-sm font-medium">Verified field assessments for {dino.name}</p>
+            </div>
+            <div className="hidden md:flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-full">
+              <span className="text-emerald-500">★</span>
+              <span className="font-bold text-white">4.8</span>
+              <span className="text-zinc-500 text-xs">/ 5.0 Global Rating</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {mockReviews.map((review) => (
+              <ReviewCard key={review.id} review={review} />
+            ))}
+          </div>
+        </section>
+
       </main>
     </div>
   );
 }
 
-// Small helper component to keep the JSX clean
+// Small helper component for Stats
 function StatBox({ label, value, highlight = false }: { label: string, value: string, highlight?: boolean }) {
   return (
     <div className="bg-zinc-950 p-6 md:p-8">
@@ -113,6 +162,32 @@ function StatBox({ label, value, highlight = false }: { label: string, value: st
       <p className={`text-xl md:text-2xl font-bold truncate ${highlight ? 'text-emerald-400' : 'text-white'}`}>
         {value || '---'}
       </p>
+    </div>
+  );
+}
+
+// Small helper component for Reviews
+function ReviewCard({ review }: { review: any }) {
+  return (
+    <div className="bg-zinc-900/50 border border-zinc-800 p-8 rounded-[2rem] flex flex-col justify-between hover:bg-zinc-900 transition-colors">
+      <div>
+        <div className="flex items-center gap-1 mb-6">
+          {[...Array(5)].map((_, i) => (
+            <span key={i} className={`text-sm ${i < review.rating ? 'text-emerald-500' : 'text-zinc-700'}`}>
+              ★
+            </span>
+          ))}
+        </div>
+        <p className="text-zinc-300 leading-relaxed text-sm mb-8">"{review.text}"</p>
+      </div>
+      
+      <div className="flex items-center justify-between border-t border-zinc-800/50 pt-4 mt-auto">
+        <div>
+          <p className="text-white font-bold text-sm">{review.author}</p>
+          <p className="text-zinc-500 text-[10px] uppercase tracking-widest">{review.role}</p>
+        </div>
+        <p className="text-zinc-600 text-xs font-mono">{review.date}</p>
+      </div>
     </div>
   );
 }
