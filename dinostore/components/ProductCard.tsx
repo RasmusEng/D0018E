@@ -66,7 +66,7 @@ export default function ProductCard({ product }: { product: Dinosaur }) {
   };
 
   return (
-    <Link href={`/dinosaurs/${slug}`} className="block group">
+    <Link href={`/dinosaurs/${product.id}`} className="block group">
       <div className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900 p-3 transition-all duration-300 hover:border-emerald-500/50 hover:shadow-[0_0_40px_-15px_rgba(16,185,129,0.3)]">
         
         <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-zinc-800/50">
