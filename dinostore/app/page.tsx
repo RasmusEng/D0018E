@@ -1,23 +1,24 @@
 import Navbar from "@/components/Navbar";
 import ProductCard from "@/components/ProductCard";
-import Features from "@/components/Features";
+import Features from "@/components/Features"; // Assuming you have this
 
-// This function fetches the data from your API
 async function getDinosaurs() {
-  const base = process.env.NEXT_PUBLIC_API_BASE;
-  if (!base) throw new Error("NEXT_PUBLIC_API_BASE is not set");
+  try {
+    const response = await fetch('http://127.0.0.1:5000/products/products', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        cache: 'no-store',
+      },
+    });
 
-  const url = `${base}/api/products`;
-  const res = await fetch(url, { cache: "no-store" });
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`Fetch failed ${res.status} ${res.statusText} from ${url}: ${text}`);
+    if (!response.ok) throw new Error('Failed to fetch inventory');
+    return await response.json(); 
+  } catch (error) {
+    console.error('Error:', error);
+    return []; 
   }
-
-  return res.json();
 }
-
 
 export default async function Home() {
   const dinosaurs = await getDinosaurs();
@@ -40,25 +41,24 @@ export default async function Home() {
           </p>
         </header>
 
-        {/* Dynamic Grid */}
         <section className="pb-24">
           <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
             {dinosaurs.map((row: any) => {
               const product = {
+                id: row.product_id,
                 name: row.product_name,
                 diet: row.diet,
-                type: row.dino_type,       // map dino_type -> type
-                period: "",                // you don't have this in DB (or set something else)
+                type: row.dino_type,
+                period: row.period || "Unknown Era", 
                 image: row.image,
                 description: row.description,
                 region: row.region,
-                height: String(row.height),
-                length: String(row.length),
-                weight: String(row.weight),
+                height: `${row.height}m`,
+                length: `${row.length}m`,
+                weight: `${row.weight}kg`,
                 price: Number(row.price),
                 stock: Number(row.stock),
               };
-
 
               return (
                 <ProductCard
@@ -67,7 +67,6 @@ export default async function Home() {
                 />
               );
             })}
-
           </div>
         </section>
 
@@ -75,7 +74,7 @@ export default async function Home() {
       </main>
 
       <footer className="py-12 text-center text-xs text-zinc-600 uppercase tracking-widest border-t border-zinc-900">
-      
+        © 2026 InGen Procurement Division
       </footer>
     </div>
   );
