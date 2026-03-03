@@ -1,0 +1,81 @@
+import Navbar from "@/components/Navbar";
+import ProductCard from "@/components/ProductCard";
+import Features from "@/components/Features"; // Assuming you have this
+
+async function getDinosaurs() {
+  try {
+    const response = await fetch('http://flask-env.eba-muajupmt.eu-north-1.elasticbeanstalk.com/products/products', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        cache: 'no-store',
+      },
+    });
+
+    if (!response.ok) throw new Error('Failed to fetch inventory');
+    return await response.json(); 
+  } catch (error) {
+    console.error('Error:', error);
+    return []; 
+  }
+}
+
+export default async function Home() {
+  const dinosaurs = await getDinosaurs();
+
+  return (
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans selection:bg-emerald-500/30">
+      <Navbar />
+
+      <main className="mx-auto max-w-7xl px-6">
+        <header className="py-24 text-center">
+          <h1 className="text-6xl font-black tracking-tighter sm:text-8xl">
+            <span className="bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">
+              Live
+            </span>
+            <br /> Inventory
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-zinc-400">
+            Currently displaying <span className="text-white font-bold">{dinosaurs.length}</span> genetically verified specimens 
+            retrieved from our secure data labs.
+          </p>
+        </header>
+
+        <section className="pb-24">
+          <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
+            {dinosaurs.map((row: any) => {
+              const product = {
+                id: row.product_id,
+                name: row.product_name,
+                diet: row.diet,
+                type: row.dino_type,
+                period: row.period || "Unknown Era", 
+                image: row.image,
+                description: row.description,
+                region: row.region,
+                height: `${row.height}m`,
+                length: `${row.length}m`,
+                weight: `${row.weight}kg`,
+                price: Number(row.price),
+                stock: Number(row.stock),
+              };
+
+              return (
+                <ProductCard
+                  key={row.product_id}
+                  product={product}
+                />
+              );
+            })}
+          </div>
+        </section>
+
+        <Features />
+      </main>
+
+      <footer className="py-12 text-center text-xs text-zinc-600 uppercase tracking-widest border-t border-zinc-900">
+        © 2026 InGen Procurement Division
+      </footer>
+    </div>
+  );
+}
