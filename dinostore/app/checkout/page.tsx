@@ -72,7 +72,7 @@ export default function CheckoutPage() {
 
     try {
       // Hit our new finalize endpoint
-      const response = await fetch('/api/orders/checkout', {
+      const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
