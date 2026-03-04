@@ -2,6 +2,8 @@ import Navbar from "@/components/Navbar";
 import ProductCard from "@/components/ProductCard";
 import Features from "@/components/Features"; // Assuming you have this
 
+
+
 async function getDinosaurs() {
   try {
     const response = await fetch('http://127.0.0.1:5000/products/products', {
@@ -19,6 +21,8 @@ async function getDinosaurs() {
     return []; 
   }
 }
+
+
 
 export default async function Home() {
   const dinosaurs = await getDinosaurs();
