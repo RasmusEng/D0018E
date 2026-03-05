@@ -14,9 +14,7 @@ interface Review {
 
 async function getDinoData(id: string) {
   try {
-    const res = await fetch(`http://127.0.0.1:5000/products/${id}`, {
-      cache: 'no-store' // Disabled cache for development
-    });
+    const res = await fetch(`http://localhost/api/products/${id}`, { cache: "no-store" });
 
     if (!res.ok) return null;
 
@@ -37,9 +35,7 @@ async function getDinoData(id: string) {
 
 async function getReviewsData(productId: string) {
   try {
-    const res = await fetch(`http://127.0.0.1:5000/review/${productId}`, {
-      cache: 'no-store' // Disabled cache for development
-    });
+    const res = await fetch(`http://localhost/api/review/${productId}`, { cache: "no-store" });
 
     if (!res.ok) return { average_grading: "0.0", reviews: [] };
     

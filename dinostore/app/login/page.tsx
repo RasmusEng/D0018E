@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default function AuthPage() {
   // Use the proxy path defined in next.config.mjs
-  const API_BASE_URL = "http://127.0.0.1:5000";
+  const API_BASE_URL = "/api";
   const router = useRouter();
   const [mode, setMode] = useState<'login' | 'register'>('login');
 
@@ -70,7 +70,7 @@ export default function AuthPage() {
 
 async function testAdminAccess() {
   try {
-    const response = await fetch('http://127.0.0.1:5000/auth/checkAdminCredentials', {
+    const response = await fetch('/api/auth/checkAdminCredentials', {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
