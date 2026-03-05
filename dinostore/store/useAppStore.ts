@@ -18,6 +18,7 @@ interface AppState {
   triggerCartRefresh: () => void;
   isLoggedIn: boolean;
   isAdmin: boolean;
+  userId: number | null; // 1. ADDED THIS
   login: (token: string) => void; 
   logout: () => void;
   checkAuth: () => void;
@@ -29,20 +30,27 @@ export const useAppStore = create<AppState>((set) => ({
   
   isLoggedIn: false,
   isAdmin: false,
+  userId: null, // 2. INITIALIZED THIS
 
   login: (token: string) => {
     localStorage.setItem("access_token", token);
     const decoded = parseJwt(token);
     
-    // MATCHES YOUR FLASK BACKEND EXACTLY
-    const isAdminStatus = decoded?.is_administrator === true || false;
+    const isAdminStatus = decoded?.is_administrator === true;
+    const currentUserId = decoded?.sub ? parseInt(decoded.sub, 10) : null;
     
-    set({ isLoggedIn: true, isAdmin: isAdminStatus });
+    if (currentUserId !== null) {
+      localStorage.setItem("user_id", currentUserId.toString());
+    }
+    
+    // 3. MUST SET userId HERE
+    set({ isLoggedIn: true, isAdmin: isAdminStatus, userId: currentUserId });
   },
 
   logout: () => {
     localStorage.removeItem("access_token");
-    set({ isLoggedIn: false, isAdmin: false });
+    localStorage.removeItem("user_id"); // 4. ALWAYS CLEAR ON LOGOUT
+    set({ isLoggedIn: false, isAdmin: false, userId: null });
   },
 
   checkAuth: () => {
@@ -50,12 +58,13 @@ export const useAppStore = create<AppState>((set) => ({
       const token = localStorage.getItem("access_token");
       if (token) {
         const decoded = parseJwt(token);
-        // MATCHES YOUR FLASK BACKEND EXACTLY
-        const isAdminStatus = decoded?.is_administrator === true || false;
+        const isAdminStatus = decoded?.is_administrator === true;
+        const currentUserId = decoded?.sub ? parseInt(decoded.sub, 10) : null;
         
-        set({ isLoggedIn: true, isAdmin: isAdminStatus });
+        // 5. MUST SET userId HERE TOO
+        set({ isLoggedIn: true, isAdmin: isAdminStatus, userId: currentUserId });
       } else {
-        set({ isLoggedIn: false, isAdmin: false });
+        set({ isLoggedIn: false, isAdmin: false, userId: null });
       }
     }
   }

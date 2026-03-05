@@ -11,9 +11,9 @@ export default function AuthPage() {
   const [mode, setMode] = useState<'login' | 'register'>('login');
 
   const [form, setForm] = useState({
+    name: "",
     email: "",
     password: "",
-    isAdmin: false
   });
 
   const [status, setStatus] = useState<{
@@ -68,31 +68,32 @@ export default function AuthPage() {
     }
   }
 
-async function testAdminAccess() {
-  try {
-    const response = await fetch('http://127.0.0.1:5000/auth/checkAdminCredentials', {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+  async function testAdminAccess() {
+    try {
+      const response = await fetch('http://127.0.0.1:5000/auth/checkAdminCredentials', {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
-    // Check if the response is actually JSON before parsing
-    const contentType = response.headers.get("content-type");
-    const data = contentType?.includes("application/json") ? await response.json() : null;
+      // Check if the response is actually JSON before parsing
+      const contentType = response.headers.get("content-type");
+      const data = contentType?.includes("application/json") ? await response.json() : null;
 
-    if (response.ok) {
-      setStatus({ message: "ADMIN ACCESS CONFIRMED", type: 'success' });
-      // Usually, you'd save a token here: localStorage.setItem('token', data.token);
-    } else {
-      // Use the error message from the server if available
-      const errorMsg = data?.message || "INSUFFICIENT PERMISSIONS";
-      setStatus({ message: errorMsg.toUpperCase(), type: 'error' });
+      // Check BOTH response.ok AND the actual isAdmin boolean from the backend
+      if (response.ok && data?.isAdmin === true) {
+        setStatus({ message: "ADMIN ACCESS CONFIRMED", type: 'success' });
+        // Usually, you'd save a token here: localStorage.setItem('token', data.token);
+      } else {
+        // Use the error message from the server if available, otherwise default to INSUFFICIENT PERMISSIONS
+        const errorMsg = data?.message || "INSUFFICIENT PERMISSIONS";
+        setStatus({ message: errorMsg.toUpperCase(), type: 'error' });
+      }
+    } catch (error) {
+      console.error("Connection Error:", error);
+      setStatus({ message: "VERIFICATION SYSTEM OFFLINE", type: 'error' });
     }
-  } catch (error) {
-    console.error("Connection Error:", error);
-    setStatus({ message: "VERIFICATION SYSTEM OFFLINE", type: 'error' });
   }
-}
 
   return (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center px-6 selection:bg-emerald-500/30">
@@ -122,6 +123,16 @@ async function testAdminAccess() {
 
         <div className="bg-zinc-900/50 border border-zinc-800 backdrop-blur-xl rounded-[2.5rem] p-8 shadow-2xl">
           <form className="space-y-5" onSubmit={handleSubmit}>
+            
+            {/* Added Name Field (Only renders on Register) */}
+            {mode === 'register' && (
+              <div>
+                <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 ml-1">Full Name</label>
+                <input name="name" required value={form.name} onChange={handleChange} placeholder="Dr. Henry Wu"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-zinc-800" />
+              </div>
+            )}
+
             <div>
               <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 ml-1">Geneticist ID</label>
               <input name="email" required value={form.email} onChange={handleChange} placeholder="Email"
@@ -133,16 +144,6 @@ async function testAdminAccess() {
               <input name="password" type="password" required value={form.password} onChange={handleChange} placeholder="••••••••"
                 className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-zinc-800" />
             </div>
-
-            {mode === 'register' && (
-              <div className="flex items-center justify-between px-2 py-2 bg-zinc-950/50 rounded-xl border border-zinc-800/50">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Request Admin Clearance?</span>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input name="isAdmin" type="checkbox" checked={form.isAdmin} onChange={handleChange} className="sr-only peer" />
-                  <div className="w-11 h-6 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-400 after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 peer-checked:after:bg-white"></div>
-                </label>
-              </div>
-            )}
 
             <button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-black py-4 rounded-2xl transition-all shadow-[0_0_20px_-5px_rgba(16,185,129,0.4)]">
               {mode === 'login' ? "INITIALIZE SESSION" : "CREATE ACCOUNT"}

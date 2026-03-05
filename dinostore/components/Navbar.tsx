@@ -32,6 +32,16 @@ export default function Navbar() {
 
         <div className="flex items-center gap-6 text-sm font-medium">
 
+          {/* ORDERS BUTTON (Logged In Users Only) */}
+          {isLoggedIn && (
+            <Link 
+              href="/orders" 
+              className="hidden sm:block text-sm font-bold text-zinc-400 hover:text-emerald-400 transition-colors uppercase tracking-widest"
+            >
+              Orders
+            </Link>
+          )}
+
           {/* FACILITY MAINFRAME BUTTON (Admins Only) */}
           {isLoggedIn && isAdmin && (
             <Link

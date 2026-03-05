@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
-import ProductCard from "@/components/ProductCard";
+import ReviewCard from "@/components/ReviewCard";
+import AddReviewForm from "@/components/AddReviewForm";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -10,6 +11,7 @@ interface Review {
   verified_customer: boolean;
   date: string;
   user_id: number;
+  review_id: number;
 }
 
 async function getDinoData(id: string) {
@@ -37,7 +39,7 @@ async function getDinoData(id: string) {
 
 async function getReviewsData(productId: string) {
   try {
-    const res = await fetch(`http://127.0.0.1:5000/review/${productId}`, {
+    const res = await fetch(`http://127.0.0.1:5000/review/product/${productId}`, {
       cache: 'no-store' // Disabled cache for development
     });
 
@@ -155,24 +157,33 @@ export default async function DinoDetailPage({ params }: { params: Promise<{ pro
 
         {/* --- REVIEWS SECTION --- */}
         <section className="mt-24 pt-16 border-t border-zinc-800/50">
-          <div className="flex items-center justify-between mb-10">
+
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
             <div>
               <h2 className="text-3xl font-black uppercase tracking-tighter text-white mb-2">Researcher Logs</h2>
               <p className="text-zinc-500 text-sm font-medium">Verified field assessments for {dino.name}</p>
             </div>
-            {/* Now displays the calculated average dynamically! */}
-            <div className="hidden md:flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-full">
-              <span className="text-emerald-500">★</span>
-              <span className="font-bold text-white">{average_grading}</span>
-              <span className="text-zinc-500 text-xs">/ 5.0 Global Rating</span>
+
+            <div className="flex items-center gap-4">
+              <div className="hidden md:flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-full">
+                <span className="text-emerald-500">★</span>
+                <span className="font-bold text-white">{Number(average_grading).toFixed(2)}</span>
+                <span className="text-zinc-500 text-xs">/ 5.0 Global Rating</span>
+              </div>
+
+              {/* Mount the Client Component here */}
+              <AddReviewForm productId={productId} />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="flex items-start overflow-x-auto gap-6 pb-8 snap-x snap-mandatory scroll-smooth" style={{ scrollbarWidth: 'thin', scrollbarColor: '#10b981 transparent' }}>
             {reviews.map((review: Review, index: number) => {
-              // Using user_id as the key since your API trace showed user_id instead of review_id
               const safeKey = review.user_id ? `user-${review.user_id}` : `review-fallback-${index}`;
-              return <ReviewCard key={safeKey} review={review} />;
+              return (
+                <div key={safeKey} className="min-w-[300px] md:min-w-[400px] flex-shrink-0 snap-start h-fit">
+                  <ReviewCard review={review} />
+                </div>
+              );
             })}
           </div>
         </section>
@@ -190,47 +201,6 @@ function StatBox({ label, value, highlight = false }: { label: string, value: st
       <p className={`text-xl md:text-2xl font-bold truncate ${highlight ? 'text-emerald-400' : 'text-white'}`}>
         {value || '---'}
       </p>
-    </div>
-  );
-}
-
-// Small helper component for Reviews
-function ReviewCard({ review }: { review: Review }) {
-  return (
-    <div className="bg-zinc-900/50 border border-zinc-800 p-8 rounded-[2rem] flex flex-col justify-between">
-      <div>
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-1">
-            {/* Dynamic Stars based on review.grade */}
-            {[...Array(5)].map((_, i) => (
-              <span key={i} className={`text-sm ${i < (review.grade || 0) ? 'text-emerald-500' : 'text-zinc-700'}`}>
-                ★
-              </span>
-            ))}
-          </div>
-          
-          {/* Verified Customer Badge */}
-          {review.verified_customer && (
-            <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-1 rounded text-[9px] font-bold uppercase tracking-widest">
-              Verified
-            </span>
-          )}
-        </div>
-
-        {/* Dynamic Review Text */}
-        <p className="text-zinc-300 leading-relaxed text-sm mb-8">
-          "{review.review_text || "No written feedback provided."}"
-        </p>
-      </div>
-      
-      <div className="flex items-center justify-between border-t border-zinc-800/50 pt-4 mt-auto">
-        <div>
-          <p className="text-white font-bold text-sm">{review.name}</p>
-        </div>
-        <p className="text-zinc-600 text-xs font-mono">
-          {review.date ? new Date(review.date).toLocaleDateString('sv-SE') : 'Unknown Date'}
-        </p>
-      </div>
     </div>
   );
 }

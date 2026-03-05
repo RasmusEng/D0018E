@@ -43,7 +43,7 @@ export default function ProductCard({ product }: { product: Dinosaur }) {
 
     try {
       console.log('Adding to cart:', product.id);
-      const response = await fetch('/api/orders/addToCart', {
+      const response = await fetch('/api/cart/addToCart', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
