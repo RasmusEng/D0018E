@@ -46,7 +46,7 @@ export default function CheckoutPage() {
     const fetchCartData = async () => {
       const token = localStorage.getItem("access_token");
       try {
-        const response = await fetch('/api/orders/getUsersCart', {
+        const response = await fetch('/api/cart/getUsersCart', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -119,58 +119,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans selection:bg-emerald-500/30 py-12 px-6">
-      <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
-        
-        {/* Left Side: Secure Transport Form */}
-        <section>
-          <div className="mb-8 flex items-center gap-3 border-b border-zinc-800 pb-4">
-            <ShieldCheck className="h-6 w-6 text-emerald-500" />
-            <h1 className="text-2xl font-black uppercase tracking-widest">Transport Manifest</h1>
-          </div>
-
-          <form onSubmit={handleCheckout} className="space-y-6">
-            <div>
-              <label className="block text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">Target Facility Name</label>
-              <input 
-                required
-                type="text" 
-                value={destination}
-                onChange={(e) => setDestination(e.target.value)}
-                placeholder="e.g. Isla Nublar Research Facility"
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">Drop Zone / Sector</label>
-              <select 
-                value={sector}
-                onChange={(e) => setSector(e.target.value)}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors"
-              >
-                <option>Sector 1 - Herbivore Plains</option>
-                <option>Sector 2 - Aviary</option>
-                <option>Sector 3 - Aquatic Center</option>
-                <option>Sector 4 - Maximum Security</option>
-              </select>
-            </div>
-
-            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 flex gap-4 text-sm text-emerald-200">
-              <Truck className="h-5 w-5 shrink-0 text-emerald-500" />
-              <p>Standard heavy-lift helicopter transport is included. Ensure reinforced paddocks are prepared prior to arrival.</p>
-            </div>
-
-            <button 
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-800 disabled:text-zinc-600 text-black font-black py-4 rounded-xl text-sm uppercase tracking-widest transition-all active:scale-[0.98]"
-            >
-              {isSubmitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Authorizing...</> : "Authorize Transport"}
-            </button>
-          </form>
-        </section>
-
-        {/* Right Side: Order Summary */}
+      <div className="max-w-5xl mx-auto grid grid-cols-1 gap-12">
         <section className="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-6 h-fit sticky top-24">
           <h2 className="text-sm font-bold text-white uppercase tracking-widest mb-6 border-b border-zinc-800 pb-4">Specimen Summary</h2>
           
@@ -205,6 +154,18 @@ export default function CheckoutPage() {
               </div>
             </div>
           )}
+        </section>
+                <section>
+
+          <form onSubmit={handleCheckout} className="space-y-6 mt-4">
+            <button 
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-800 disabled:text-zinc-600 text-black font-black py-4 rounded-xl text-sm uppercase tracking-widest transition-all active:scale-[0.98]"
+            >
+              {isSubmitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Authorizing...</> : "Authorize"}
+            </button>
+          </form>
         </section>
 
       </div>

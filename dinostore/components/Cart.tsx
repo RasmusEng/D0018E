@@ -39,7 +39,7 @@ export default function Cart() {
       }
 
       try {
-        const response = await fetch('/api/orders/getUsersCart', {
+        const response = await fetch('/api/cart/getUsersCart', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -84,8 +84,8 @@ export default function Cart() {
     const token = localStorage.getItem("access_token");
 
     try {
-      const response = await fetch('/api/orders/removeFromCart', {
-        method: 'POST', // Using POST to safely send the body
+      const response = await fetch('/api/cart/removeFromCart', {
+        method: 'PATCH', // Using POST to safely send the body
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
