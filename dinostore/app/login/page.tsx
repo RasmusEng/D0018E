@@ -70,7 +70,7 @@ export default function AuthPage() {
 
   async function testAdminAccess() {
     try {
-      const response = await fetch('http://127.0.0.1:5000/auth/checkAdminCredentials', {
+      const response = await fetch('/api/auth/checkAdminCredentials', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -101,10 +101,8 @@ export default function AuthPage() {
 
       <div className="w-full max-w-md relative">
         <div className="text-center mb-8">
-          <Link href="/" className="text-3xl font-black tracking-tighter italic">
-            <span className="bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">DINO</span>
-            <span className="text-white">STORE</span>
-          </Link>
+          <span className="bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">DINO</span>
+          <span className="text-white">STORE</span>
           <div className="flex justify-center gap-4 mt-4">
             <button
               onClick={() => setMode('login')}
@@ -123,7 +121,7 @@ export default function AuthPage() {
 
         <div className="bg-zinc-900/50 border border-zinc-800 backdrop-blur-xl rounded-[2.5rem] p-8 shadow-2xl">
           <form className="space-y-5" onSubmit={handleSubmit}>
-            
+
             {/* Added Name Field (Only renders on Register) */}
             {mode === 'register' && (
               <div>
