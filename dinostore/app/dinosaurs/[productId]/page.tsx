@@ -1,5 +1,5 @@
 import Navbar from "@/components/Navbar";
-import ReviewCard from "@/components/ProductCard";
+import ReviewCard from "@/components/ReviewCard";
 import AddReviewForm from "@/components/AddReviewForm";
 import Image from "next/image";
 import Link from "next/link";
