@@ -11,18 +11,18 @@ export interface Order {
 interface AdminOrdersProps {
   orders: Order[];
   onRefresh?: () => void;
-  onOrderStatusChange?: (orderId: number, newStatus: number) => void; 
+  onOrderStatusChange?: (orderId: number, newStatus: number) => void;
 }
 
 // --- NEW: Custom Dropdown Component ---
-const StatusDropdown = ({ 
-  orderId, 
-  currentStatus, 
-  onChange 
-}: { 
-  orderId: number, 
-  currentStatus: number, 
-  onChange?: (id: number, status: number) => void 
+const StatusDropdown = ({
+  orderId,
+  currentStatus,
+  onChange
+}: {
+  orderId: number,
+  currentStatus: number,
+  onChange?: (id: number, status: number) => void
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -87,7 +87,7 @@ const StatusDropdown = ({
 
 // --- MAIN COMPONENT ---
 const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, onRefresh, onOrderStatusChange }) => {
-  
+
   const formatDate = (dateString: string | null) => {
     if (!dateString) return <span className="text-zinc-600 italic">Unclassified</span>;
     return new Date(dateString).toLocaleDateString();
@@ -101,21 +101,23 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, onRefresh, onOrderSta
           Order Manifest
         </h2>
         {onRefresh && (
-          <button 
-            onClick={onRefresh} 
+          <button
+            onClick={onRefresh}
             className="text-zinc-500 text-xs font-bold uppercase hover:text-white transition-colors"
           >
             Refresh Feed
           </button>
         )}
       </div>
-      
+
       {orders.length === 0 ? (
         <div className="flex-grow flex items-center justify-center border border-dashed border-zinc-800 rounded-lg p-12">
           <p className="text-zinc-600 text-xs font-black uppercase tracking-widest animate-pulse">NO ACTIVE DISPATCHES FOUND.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
+        // FIX: Removed "pb-32", "min-h-[250px]", and any "overflow" classes entirely.
+        // The table will now size naturally and allow the dropdown to float above everything else.
+        <div className="w-full">
           <table className="min-w-full border-collapse text-sm">
             <thead>
               <tr className="border-b border-zinc-800 text-zinc-500 uppercase tracking-[0.2em] text-[10px]">
@@ -131,11 +133,10 @@ const AdminOrders: React.FC<AdminOrdersProps> = ({ orders, onRefresh, onOrderSta
                   <td className="py-4 font-mono text-emerald-500 font-bold">#{order.order_id}</td>
                   <td className="py-4 font-mono text-xs">U-{order.user_id}</td>
                   <td className="py-4">
-                    {/* Implementing the new custom dropdown here */}
-                    <StatusDropdown 
-                      orderId={order.order_id} 
-                      currentStatus={order.order_status} 
-                      onChange={onOrderStatusChange} 
+                    <StatusDropdown
+                      orderId={order.order_id}
+                      currentStatus={order.order_status}
+                      onChange={onOrderStatusChange}
                     />
                   </td>
                   <td className="py-4 font-mono text-xs text-right">{formatDate(order.order_date)}</td>

@@ -9,11 +9,8 @@ import { useAppStore } from "@/store/useAppStore"; // Adjust import path if need
 export default function Navbar() {
   const router = useRouter();
 
-  // Hook into our global store
-  // NOTE: Ensure your useAppStore exposes 'isAdmin' (or user?.admin)
   const { isLoggedIn, isAdmin, checkAuth, logout } = useAppStore();
 
-  // Check auth status on initial load
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
@@ -34,9 +31,6 @@ export default function Navbar() {
         </Link>
 
         <div className="flex items-center gap-6 text-sm font-medium">
-          <Link href="/" className="hidden hover:text-emerald-600 sm:block transition-colors">
-            Catalog
-          </Link>
 
           {/* FACILITY MAINFRAME BUTTON (Admins Only) */}
           {isLoggedIn && isAdmin && (
