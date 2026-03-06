@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default function AuthPage() {
   // Use the proxy path defined in next.config.mjs
-  const API_BASE_URL = "http://127.0.0.1:5000";
+  const API_BASE_URL = "http://127.0.0.1/api";
   const router = useRouter();
   const [mode, setMode] = useState<'login' | 'register'>('login');
 

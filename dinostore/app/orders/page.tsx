@@ -35,7 +35,7 @@ export default function OrdersPage() {
       }
 
       try {
-        const response = await fetch("http://127.0.0.1:5000/orders", {
+        const response = await fetch("http://127.0.0.1/api/orders", {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${token}`,

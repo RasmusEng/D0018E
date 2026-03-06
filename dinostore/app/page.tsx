@@ -6,12 +6,12 @@ import Features from "@/components/Features"; // Assuming you have this
 
 async function getDinosaurs() {
   try {
-    const response = await fetch('http://127.0.0.1:5000/products/products', {
+    const response = await fetch('http://127.0.0.1/api/products/products', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        cache: 'no-store',
       },
+      cache: 'no-store'
     });
 
     if (!response.ok) throw new Error('Failed to fetch inventory');

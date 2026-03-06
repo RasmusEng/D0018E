@@ -34,7 +34,7 @@ export default function ReviewCard({ review }: { review: Review }) {
     const token = localStorage.getItem("access_token");
 
     try {
-      const res = await fetch(`http://127.0.0.1:5000/review/${review.review_id}`, {
+      const res = await fetch(`/api/review/${review.review_id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -63,7 +63,7 @@ export default function ReviewCard({ review }: { review: Review }) {
     
     const token = localStorage.getItem("access_token");
     try {
-      const res = await fetch(`http://127.0.0.1:5000/review/${review.review_id}`, {
+      const res = await fetch(`/api/review/${review.review_id}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${token}`

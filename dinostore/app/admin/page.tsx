@@ -241,7 +241,7 @@ export default function AdminDashboard() {
     try {
       // 1. Ensure the URL is absolute if proxying isn't configured, 
       // and match the Flask route: /admin/change-order-status/<id>
-      const res = await fetch(`http://localhost:5000/admin/change-order-status/${orderId}`, {
+      const res = await fetch(`/api/admin/change-order-status/${orderId}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

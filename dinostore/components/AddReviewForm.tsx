@@ -16,7 +16,7 @@ export default function AddReviewForm({ productId }: { productId: string }) {
     setIsSubmitting(true);
     const token = localStorage.getItem("access_token");
     try {
-      const res = await fetch(`http://127.0.0.1:5000/review/${productId}`, {
+      const res = await fetch(`/api/review/${productId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
